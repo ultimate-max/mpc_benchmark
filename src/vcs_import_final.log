@@ -1,0 +1,171 @@
+DEBUG:vcstool.executor:started './aligator'
+DEBUG:vcstool.executor:started './eigenpy'
+DEBUG:vcstool.executor:started './example-robot-data'
+DEBUG:vcstool.executor:started './hpp-fcl'
+DEBUG:vcstool.executor:started './ndcurves'
+DEBUG:vcstool.executor:started './pinocchio'
+DEBUG:vcstool.executor:started './proxsuite-nlp'
+DEBUG:vcstool.executor:ongoing ['./aligator', './eigenpy', './example-robot-data', './hpp-fcl', './ndcurves', './pinocchio', './proxsuite-nlp']
+DEBUG:vcstool.executor:finished './aligator'
+E
+DEBUG:vcstool.executor:ongoing ['./eigenpy', './example-robot-data', './hpp-fcl', './ndcurves', './pinocchio', './proxsuite-nlp']
+DEBUG:vcstool.executor:finished './proxsuite-nlp'
+.
+DEBUG:vcstool.executor:ongoing ['./eigenpy', './example-robot-data', './hpp-fcl', './ndcurves', './pinocchio']
+DEBUG:vcstool.executor:finished './ndcurves'
+.
+DEBUG:vcstool.executor:ongoing ['./eigenpy', './example-robot-data', './hpp-fcl', './pinocchio']
+DEBUG:vcstool.executor:finished './eigenpy'
+.
+DEBUG:vcstool.executor:ongoing ['./example-robot-data', './hpp-fcl', './pinocchio']
+DEBUG:vcstool.executor:finished './hpp-fcl'
+.
+DEBUG:vcstool.executor:ongoing ['./example-robot-data', './pinocchio']
+DEBUG:vcstool.executor:finished './example-robot-data'
+.
+DEBUG:vcstool.executor:ongoing ['./pinocchio']
+DEBUG:vcstool.executor:finished './pinocchio'
+.
+=== ./aligator (git) ===
+Could not checkout ref 'v0.10.0': fatal: 无效引用：v0.10.0
+=== ./eigenpy (git) ===
+正克隆到 '.'...
+注意：正在切换到 'v3.9.1'。
+
+您正处于分离头指针状态。您可以查看、做试验性的修改及提交，并且您可以在切换
+回一个分支时，丢弃在此状态下所做的提交而不对分支造成影响。
+
+如果您想要通过创建分支来保留在此状态下所做的提交，您可以通过在 switch 命令
+中添加参数 -c 来实现（现在或稍后）。例如：
+
+  git switch -c <新分支名>
+
+或者撤销此操作：
+
+  git switch -
+
+通过将配置变量 advice.detachedHead 设置为 false 来关闭此建议
+
+HEAD 目前位于 3586fcb release: Update CHANGELOG.md for 3.9.1
+子模组 'cmake'（https://github.com/jrl-umi3218/jrl-cmakemodules.git）已对路径 'cmake' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/eigenpy/cmake'...
+子模组路径 'cmake'：检出 'b3c2af1b68686dc9d5f459fb617647e37a15a76d'
+=== ./example-robot-data (git) ===
+正克隆到 '.'...
+注意：正在切换到 'v4.3.0'。
+
+您正处于分离头指针状态。您可以查看、做试验性的修改及提交，并且您可以在切换
+回一个分支时，丢弃在此状态下所做的提交而不对分支造成影响。
+
+如果您想要通过创建分支来保留在此状态下所做的提交，您可以通过在 switch 命令
+中添加参数 -c 来实现（现在或稍后）。例如：
+
+  git switch -c <新分支名>
+
+或者撤销此操作：
+
+  git switch -
+
+通过将配置变量 advice.detachedHead 设置为 false 来关闭此建议
+
+HEAD 目前位于 534089d release: Update CHANGELOG.md for 4.3.0
+子模组 'cmake'（https://github.com/jrl-umi3218/jrl-cmakemodules.git）已对路径 'cmake' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/example-robot-data/cmake'...
+子模组路径 'cmake'：检出 'b5ae8e49306840a50ae9c752c5b4040f892c89d8'
+=== ./hpp-fcl (git) ===
+正克隆到 '.'...
+注意：正在切换到 'v3.0.0'。
+
+您正处于分离头指针状态。您可以查看、做试验性的修改及提交，并且您可以在切换
+回一个分支时，丢弃在此状态下所做的提交而不对分支造成影响。
+
+如果您想要通过创建分支来保留在此状态下所做的提交，您可以通过在 switch 命令
+中添加参数 -c 来实现（现在或稍后）。例如：
+
+  git switch -c <新分支名>
+
+或者撤销此操作：
+
+  git switch -
+
+通过将配置变量 advice.detachedHead 设置为 false 来关闭此建议
+
+HEAD 目前位于 4d1b7928 release: Update CITATION.cff version to 3.0.0
+子模组 'cmake'（https://github.com/jrl-umi3218/jrl-cmakemodules.git）已对路径 'cmake' 注册
+子模组 'third-parties/qhull'（https://github.com/qhull/qhull.git）已对路径 'third-parties/qhull' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/hpp-fcl/cmake'...
+正克隆到 '/home/coral/project/mpc_benchmark/src/hpp-fcl/third-parties/qhull'...
+子模组路径 'cmake'：检出 'f1f95f942fabd3d4dc7e39aa7f1c20a5b0735165'
+子模组路径 'third-parties/qhull'：检出 '5a79a0009454c86e9848646b3c296009125231bf'
+=== ./ndcurves (git) ===
+正克隆到 '.'...
+注意：正在切换到 'v2.0.0'。
+
+您正处于分离头指针状态。您可以查看、做试验性的修改及提交，并且您可以在切换
+回一个分支时，丢弃在此状态下所做的提交而不对分支造成影响。
+
+如果您想要通过创建分支来保留在此状态下所做的提交，您可以通过在 switch 命令
+中添加参数 -c 来实现（现在或稍后）。例如：
+
+  git switch -c <新分支名>
+
+或者撤销此操作：
+
+  git switch -
+
+通过将配置变量 advice.detachedHead 设置为 false 来关闭此建议
+
+HEAD 目前位于 7f91c9f release: Update CHANGELOG.md for 2.0.0
+子模组 'cmake'（https://github.com/jrl-umi3218/jrl-cmakemodules.git）已对路径 'cmake' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/ndcurves/cmake'...
+子模组路径 'cmake'：检出 '29c0eb4e659304f44d55a0389e2749812d858659'
+=== ./pinocchio (git) ===
+正克隆到 '.'...
+注意：正在切换到 'v3.4.0'。
+
+您正处于分离头指针状态。您可以查看、做试验性的修改及提交，并且您可以在切换
+回一个分支时，丢弃在此状态下所做的提交而不对分支造成影响。
+
+如果您想要通过创建分支来保留在此状态下所做的提交，您可以通过在 switch 命令
+中添加参数 -c 来实现（现在或稍后）。例如：
+
+  git switch -c <新分支名>
+
+或者撤销此操作：
+
+  git switch -
+
+通过将配置变量 advice.detachedHead 设置为 false 来关闭此建议
+
+HEAD 目前位于 187afafc release: Update CITATION.cff version to 3.4.0
+子模组 'cmake'（https://github.com/jrl-umi3218/jrl-cmakemodules）已对路径 'cmake' 注册
+子模组 'models/example-robot-data'（https://github.com/Gepetto/example-robot-data.git）已对路径 'models/example-robot-data' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/pinocchio/cmake'...
+正克隆到 '/home/coral/project/mpc_benchmark/src/pinocchio/models/example-robot-data'...
+子模组路径 'cmake'：检出 '851587ac339b65865b415d4194e81001dffcb1c7'
+子模组路径 'models/example-robot-data'：检出 '6ed0cc91241562972190da6e69430834ae2b1158'
+子模组 'cmake'（https://github.com/jrl-umi3218/jrl-cmakemodules.git）已对路径 'models/example-robot-data/cmake' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/pinocchio/models/example-robot-data/cmake'...
+子模组路径 'models/example-robot-data/cmake'：检出 '935e2154e02e84f147046278bfd64e27a5f0850a'
+=== ./proxsuite-nlp (git) ===
+正克隆到 '.'...
+注意：正在切换到 'v0.10.0'。
+
+您正处于分离头指针状态。您可以查看、做试验性的修改及提交，并且您可以在切换
+回一个分支时，丢弃在此状态下所做的提交而不对分支造成影响。
+
+如果您想要通过创建分支来保留在此状态下所做的提交，您可以通过在 switch 命令
+中添加参数 -c 来实现（现在或稍后）。例如：
+
+  git switch -c <新分支名>
+
+或者撤销此操作：
+
+  git switch -
+
+通过将配置变量 advice.detachedHead 设置为 false 来关闭此建议
+
+HEAD 目前位于 c18efb7 release: Update CITATION.cff version to 0.10.0
+子模组 'jrl-cmakemodules'（https://github.com/jrl-umi3218/jrl-cmakemodules）已对路径 'cmake' 注册
+正克隆到 '/home/coral/project/mpc_benchmark/src/proxsuite-nlp/cmake'...
+子模组路径 'cmake'：检出 '4161df033d519620316863fdc8873804e0dfae2f'
