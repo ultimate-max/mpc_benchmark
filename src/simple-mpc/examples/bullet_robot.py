@@ -9,29 +9,30 @@ import pybullet_data
 import pybullet as p  # PyBullet simulator
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-
 # import os
 
 
 class BulletRobot:
-    def __init__(
-        self,
-        controlledJoints,
-        modelPath,
-        URDF_filename,
-        simuStep,
-        rmodelComplete,
-        robotPose=[0.0, 0.0, 1.01927],
-        inertiaOffset=True,
-    ):
+    def __init__(self, 
+                 controlledJoints,
+                 modelPath,
+                 URDF_filename,
+                 simuStep,
+                 rmodelComplete,
+                 robotPose = [0.0, 0.0, 1.01927],
+                 inertiaOffset = True,
+                 talos = True):
         p.connect(p.GUI)  # Start the client for PyBullet
         p.setTimeStep(simuStep)
         p.setGravity(0, 0, -9.81)  # Set gravity (disabled by default)
 
-        # place CoM of root link
+        # place CoM of root link ## TODO: check placement
         robotStartPosition = robotPose
         robotStartOrientation = p.getQuaternionFromEuler([0, 0, 0])
-        p.setAdditionalSearchPath(modelPath)
+        if talos:
+            p.setAdditionalSearchPath(modelPath + "/talos_data/robots/")
+        else:
+            p.setAdditionalSearchPath(modelPath + "/solo_description/robots/")
 
         self.robotId = p.loadURDF(
             URDF_filename,
@@ -43,12 +44,10 @@ class BulletRobot:
         # Load horizontal plane
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
-
+        
         self.localInertiaPos = np.array([0, 0, 0])
         if inertiaOffset:
-            self.localInertiaPos = p.getDynamicsInfo(self.robotId, -1)[
-                3
-            ]  # of the base link
+            self.localInertiaPos = p.getDynamicsInfo(self.robotId, -1)[3]  # of the base link
 
         # leg_left (45-50), leg_right (52-57), torso (0-1), arm_left (11-17),
         # gripper_left (21), arm_right (28-34), gripper_right (38), head (3,4).
@@ -78,15 +77,15 @@ class BulletRobot:
         )
 
         # Augment friction to forbid feet sliding for Talos
-        """ p.changeDynamics(self.robotId, 50, lateralFriction=100, spinningFriction=30)
+        p.changeDynamics(self.robotId, 50, lateralFriction=100, spinningFriction=30)
         p.changeDynamics(self.robotId, 57, lateralFriction=100, spinningFriction=30)
 
         # Augment friction to forbid feet sliding for Solo
         p.changeDynamics(self.robotId, 3, lateralFriction=100, spinningFriction=30)
         p.changeDynamics(self.robotId, 7, lateralFriction=100, spinningFriction=30)
         p.changeDynamics(self.robotId, 11, lateralFriction=100, spinningFriction=30)
-        p.changeDynamics(self.robotId, 15, lateralFriction=100, spinningFriction=30) """
-        p.configureDebugVisualizer(p.COV_ENABLE_SHADOWS, 0)
+        p.changeDynamics(self.robotId, 15, lateralFriction=100, spinningFriction=30)
+        p.configureDebugVisualizer(p.COV_ENABLE_SHADOWS,0)
 
     def initializeJoints(self, q0CompleteStart):
         # Initialize position in pyBullet
@@ -105,14 +104,6 @@ class BulletRobot:
             p.resetJointState(
                 self.robotId, self.JointIndicesComplete[i], initial_joint_positions[i]
             )
-
-    def getFrictionCoefficients(self, link_id):
-        lat_fric = p.getDynamicsInfo(self.robotId, link_id)[1]
-        spin_fric = p.getDynamicsInfo(self.robotId, link_id)[7]
-        return lat_fric, spin_fric
-
-    def setFrictionCoefficients(self, link_id, lateral_friction, spin_friction):
-        p.changeDynamics(self.robotId, link_id, lateralFriction=lateral_friction, spinningFriction=spin_friction)
 
     def resetState(self, q0Start):
         # Initialize position in pyBullet
@@ -133,7 +124,9 @@ class BulletRobot:
     def resetReducedState(self, q0Start):
         # Initialize position in pyBullet
         for i in range(len(self.bulletControlledJoints)):
-            p.resetJointState(self.robotId, self.bulletControlledJoints[i], q0Start[i])
+            p.resetJointState(
+                self.robotId, self.bulletControlledJoints[i], q0Start[i]
+            )
 
     def addStairs(self, path, position, orientation):
         p.setAdditionalSearchPath(path)
@@ -150,7 +143,7 @@ class BulletRobot:
             forces=torques,
         )
         p.stepSimulation()
-
+    
     def execute_velocity(self, velocity, max_forces):
         p.setJointMotorControlArray(
             self.robotId,
@@ -162,12 +155,19 @@ class BulletRobot:
         p.stepSimulation()
 
     def apply_force(self, force, position):
-        p.applyExternalForce(self.robotId, -1, force, position, p.WORLD_FRAME)
-
-    def changeCamera(self, cameraDistance, cameraYaw, cameraPitch, cameraTargetPos):
-        p.resetDebugVisualizerCamera(
-            cameraDistance, cameraYaw, cameraPitch, cameraTargetPos
+        p.applyExternalForce(
+            self.robotId,
+            -1,
+            force,
+            position,
+            p.WORLD_FRAME
         )
+        
+    def changeCamera(self,cameraDistance,cameraYaw,cameraPitch,cameraTargetPos):
+        p.resetDebugVisualizerCamera(cameraDistance,
+                                     cameraYaw,
+                                     cameraPitch,
+                                     cameraTargetPos)
 
     def measureState(self):
         jointStates = p.getJointStates(
@@ -194,13 +194,11 @@ class BulletRobot:
         rotation = R.from_quat(q[3:7])
         q[:3] -= rotation.as_matrix() @ self.localInertiaPos
         return q, v
-
+    
     def addTable(self, path, position):
         p.setAdditionalSearchPath(path)
         self.tableId = p.loadURDF("table/table.urdf")
-        p.resetBasePositionAndOrientation(
-            self.tableId, posObj=position, ornObj=[0, 0, 0, 1]
-        )
+        p.resetBasePositionAndOrientation(self.tableId, posObj=position,ornObj=[0,0,0,1])
 
     def showSlope(self, position, orientation):
         visualShapeTarget = p.createVisualShape(
@@ -219,43 +217,26 @@ class BulletRobot:
             baseOrientation=orientation,
             useMaximalCoordinates=True,
         )
-
-    def showPointTrack(self, pose):
+        
+    def showHandToTrack(self, RH_pose):
         visualShapeTarget = p.createVisualShape(
             shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.1, 0.05],
+            halfExtents=[0.05, 0.05, 0.05],
             rgbaColor=[0.0, 0.0, 1.0, 1.0],
             specularColor=[0.4, 0.4, 0],
             visualFramePosition=[0.0, 0.0, 0.0],
         )
 
-        self.sphereIdPoint = p.createMultiBody(
+        self.sphereIdHand = p.createMultiBody(
             baseMass=0.0,
             baseInertialFramePosition=[0, 0, 0],
             baseVisualShapeIndex=visualShapeTarget,
             basePosition=[
-                pose[0],
-                pose[1],
-                pose[2],
-            ],
-            baseOrientation=[
-                pose[3],
-                pose[4],
-                pose[5],
-                pose[6],
+                RH_pose[0],
+                RH_pose[1],
+                RH_pose[2],
             ],
             useMaximalCoordinates=True,
-        )
-
-    def updatePoint(self, pose):
-        p.resetBasePositionAndOrientation(
-            self.sphereIdPoint,
-            posObj=[
-                pose[0],
-                pose[1],
-                pose[2],
-            ],
-            ornObj=np.array([pose[3], pose[4], pose[5], pose[6]]),
         )
 
     def showTargetToTrack(self, LF_pose, RF_pose):
@@ -290,8 +271,85 @@ class BulletRobot:
             ],
             useMaximalCoordinates=True,
         )
+    
+    def createStairs(self, pose_stairs, height_step):
+        visualShapeTarget = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.2, 0.5, height_step / 2.],
+            rgbaColor=[0.0, 1.0, 1.0, 1.0],
+            specularColor=[0.4, 0.4, 0],
+            visualFramePosition=pose_stairs,
+        )
 
-    def showQuadrupedFeet(self, FL_pose, FR_pose, RL_pose, RR_pose):
+        collisionShapeTarget = p.createCollisionShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.2, 0.5, height_step / 2.],
+            collisionFramePosition=pose_stairs,
+        )
+
+        self.stairsID = p.createMultiBody(
+            baseMass=0.0,
+            baseInertialFramePosition=[0, 0, 0],
+            baseCollisionShapeIndex=collisionShapeTarget,
+            baseVisualShapeIndex=visualShapeTarget,
+            basePosition=pose_stairs,
+            useMaximalCoordinates=True,
+        )
+        pose_stairs2 = pose_stairs.copy()
+        pose_stairs2[0] += 0.3
+        pose_stairs2[2] += height_step
+
+        visualShapeTarget2 = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.2, 0.5, height_step / 2.],
+            rgbaColor=[1.0, 1.0, 0.0, 1.0],
+            specularColor=[0.4, 0.4, 0],
+            visualFramePosition=pose_stairs2,
+        )
+
+        collisionShapeTarget2 = p.createCollisionShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.2, 0.5, height_step / 2.],
+            collisionFramePosition=pose_stairs2,
+        )
+
+        self.stairsID2 = p.createMultiBody(
+            baseMass=0.0,
+            baseInertialFramePosition=[0, 0, 0],
+            baseCollisionShapeIndex=collisionShapeTarget2,
+            baseVisualShapeIndex=visualShapeTarget2,
+            basePosition=pose_stairs,
+            useMaximalCoordinates=True,
+        )
+
+        pose_stairs3 = pose_stairs2.copy()
+        pose_stairs3[0] += 0.3
+        pose_stairs3[2] += height_step
+
+        visualShapeTarget3 = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.2, 0.5, height_step / 2.],
+            rgbaColor=[0.0, 1.0, 0.0, 1.0],
+            specularColor=[0.4, 0.4, 0],
+            visualFramePosition=pose_stairs3,
+        )
+
+        collisionShapeTarget3 = p.createCollisionShape(
+            shapeType=p.GEOM_BOX,
+            halfExtents=[0.2, 0.5, height_step / 2.],
+            collisionFramePosition=pose_stairs3,
+        )
+
+        self.stairsID3 = p.createMultiBody(
+            baseMass=0.0,
+            baseInertialFramePosition=[0, 0, 0],
+            baseCollisionShapeIndex=collisionShapeTarget3,
+            baseVisualShapeIndex=visualShapeTarget3,
+            basePosition=pose_stairs,
+            useMaximalCoordinates=True,
+        )
+    
+    def showSoloFeet(self, FL_pose, FR_pose, HL_pose, HR_pose):
         visualShapeTarget = p.createVisualShape(
             shapeType=p.GEOM_BOX,
             halfExtents=[0.03, 0.03, 0.001],
@@ -324,104 +382,27 @@ class BulletRobot:
             useMaximalCoordinates=True,
         )
 
-        self.sphereIdRL = p.createMultiBody(
+        self.sphereIdHL = p.createMultiBody(
             baseMass=0.0,
             baseInertialFramePosition=[0, 0, 0],
             baseVisualShapeIndex=visualShapeTarget,
             basePosition=[
-                RL_pose.translation[0],
-                RL_pose.translation[1],
-                RL_pose.translation[2],
+                HL_pose.translation[0],
+                HL_pose.translation[1],
+                HL_pose.translation[2],
             ],
             useMaximalCoordinates=True,
         )
 
-        self.sphereIdRR = p.createMultiBody(
+        self.sphereIdHR = p.createMultiBody(
             baseMass=0.0,
             baseInertialFramePosition=[0, 0, 0],
             baseVisualShapeIndex=visualShapeTarget,
             basePosition=[
-                RR_pose.translation[0],
-                RR_pose.translation[1],
-                RR_pose.translation[2],
+                HR_pose.translation[0],
+                HR_pose.translation[1],
+                HR_pose.translation[2],
             ],
-            useMaximalCoordinates=True,
-        )
-
-    def createStairs(self, pose_stairs, height_step):
-        visualShapeTarget = p.createVisualShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.5, height_step / 2.0],
-            rgbaColor=[0.0, 1.0, 1.0, 1.0],
-            specularColor=[0.4, 0.4, 0],
-            visualFramePosition=pose_stairs,
-        )
-
-        collisionShapeTarget = p.createCollisionShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.5, height_step / 2.0],
-            collisionFramePosition=pose_stairs,
-        )
-
-        self.stairsID = p.createMultiBody(
-            baseMass=0.0,
-            baseInertialFramePosition=[0, 0, 0],
-            baseCollisionShapeIndex=collisionShapeTarget,
-            baseVisualShapeIndex=visualShapeTarget,
-            basePosition=pose_stairs,
-            useMaximalCoordinates=True,
-        )
-        pose_stairs2 = pose_stairs.copy()
-        pose_stairs2[0] += 0.3
-        pose_stairs2[2] += height_step
-
-        visualShapeTarget2 = p.createVisualShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.5, height_step / 2.0],
-            rgbaColor=[1.0, 1.0, 0.0, 1.0],
-            specularColor=[0.4, 0.4, 0],
-            visualFramePosition=pose_stairs2,
-        )
-
-        collisionShapeTarget2 = p.createCollisionShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.5, height_step / 2.0],
-            collisionFramePosition=pose_stairs2,
-        )
-
-        self.stairsID2 = p.createMultiBody(
-            baseMass=0.0,
-            baseInertialFramePosition=[0, 0, 0],
-            baseCollisionShapeIndex=collisionShapeTarget2,
-            baseVisualShapeIndex=visualShapeTarget2,
-            basePosition=pose_stairs,
-            useMaximalCoordinates=True,
-        )
-
-        pose_stairs3 = pose_stairs2.copy()
-        pose_stairs3[0] += 0.3
-        pose_stairs3[2] += height_step
-
-        visualShapeTarget3 = p.createVisualShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.5, height_step / 2.0],
-            rgbaColor=[0.0, 1.0, 0.0, 1.0],
-            specularColor=[0.4, 0.4, 0],
-            visualFramePosition=pose_stairs3,
-        )
-
-        collisionShapeTarget3 = p.createCollisionShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=[0.2, 0.5, height_step / 2.0],
-            collisionFramePosition=pose_stairs3,
-        )
-
-        self.stairsID3 = p.createMultiBody(
-            baseMass=0.0,
-            baseInertialFramePosition=[0, 0, 0],
-            baseCollisionShapeIndex=collisionShapeTarget3,
-            baseVisualShapeIndex=visualShapeTarget3,
-            basePosition=pose_stairs,
             useMaximalCoordinates=True,
         )
 
@@ -445,8 +426,8 @@ class BulletRobot:
             ],
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
-
-    def moveQuadrupedFeet(self, FL_pose, FR_pose, RL_pose, RR_pose):
+    
+    def moveSoloFeet(self, FL_pose, FR_pose, HL_pose, HR_pose):
 
         p.resetBasePositionAndOrientation(
             self.sphereIdFL,
@@ -467,24 +448,24 @@ class BulletRobot:
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
         p.resetBasePositionAndOrientation(
-            self.sphereIdRL,
+            self.sphereIdHL,
             posObj=[
-                RL_pose[0],
-                RL_pose[1],
-                RL_pose[2],
+                HL_pose[0],
+                HL_pose[1],
+                HL_pose[2],
             ],
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
         p.resetBasePositionAndOrientation(
-            self.sphereIdRR,
+            self.sphereIdHR,
             posObj=[
-                RR_pose[0],
-                RR_pose[1],
-                RR_pose[2],
+                HR_pose[0],
+                HR_pose[1],
+                HR_pose[2],
             ],
             ornObj=np.array([0.0, 0.0, 0.0, 1.0]),
         )
-
+    
     def close(self):
         p.disconnect()
 

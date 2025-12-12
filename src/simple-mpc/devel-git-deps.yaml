@@ -1,8 +1,8 @@
 repositories:
   aligator:
     type: git
-    url: git@github.com:edantec/aligator.git
-    version: temporary_fix
+    url: git@github.com:Simple-Robotics/aligator.git
+    version: v0.10.0
   eigenpy:
     type: git
     url: git@github.com:stack-of-tasks/eigenpy.git

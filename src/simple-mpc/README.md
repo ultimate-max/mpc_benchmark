@@ -40,7 +40,7 @@ vcs import --recursive < simple-mpc/devel-git-deps.yaml
 4. Build all dependencies of simple-mpc:
 (Due to a renaming issue, you may need to rename hpp-fcl into coal in the package.xml file of the Pinocchio library)
 ```bash
-export MAKEFLAGS="-j4" # It is recommended to reduce the number of jobs as you ram might get full easily with the default number.
+export MAKEFLAGS="-j3" # It is recommended to reduce the number of jobs as you ram might get full easily with the default number.
 cd ..
 colcon build --event-handlers console_direct+ --packages-ignore simple-mpc --cmake-args \
 -DCMAKE_BUILD_TYPE=Release             \
